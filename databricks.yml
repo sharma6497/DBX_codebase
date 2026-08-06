@@ -17,7 +17,13 @@ variables:
   catalog:
     description: The catalog to use
   schema:
-    description: The schema to use
+    description: The default schema to use
+  bronze_schema:
+    description: The schema used by the bronze layer
+  silver_schema:
+    description: The schema used by the silver layer
+  gold_schema:
+    description: The schema used by the gold layer
 
 targets:
   dev:
@@ -32,6 +38,9 @@ targets:
     variables:
       catalog: clear
       schema: ${workspace.current_user.short_name}
+      bronze_schema: ${workspace.current_user.short_name}_bronze
+      silver_schema: ${workspace.current_user.short_name}_silver
+      gold_schema: ${workspace.current_user.short_name}_gold
   prod:
     mode: production
     workspace:
@@ -41,6 +50,9 @@ targets:
     variables:
       catalog: clear
       schema: prod
+      bronze_schema: prod_bronze
+      silver_schema: prod_silver
+      gold_schema: prod_gold
     permissions:
       - user_name: sharmakrishnan480@gmail.com
         level: CAN_MANAGE
