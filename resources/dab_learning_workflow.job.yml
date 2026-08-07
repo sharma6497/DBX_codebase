@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    dab_learning_workflow:
+      name: dab_learning_workflow
+      trigger:
+        periodic:
+          interval: 1
+          unit: DAYS
+      tasks:
+        - task_key: bronze_layer
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.dab_bronze_pipeline.id}
+        - task_key: silver_layer
+          depends_on:
+            - task_key: bronze_layer
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.dab_silver_pipeline.id}
+        - task_key: gold_layer
+          depends_on:
+            - task_key: silver_layer
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.dab_gold_pipeline.id}

@@ -1,0 +1,58 @@
+# This is a Declarative Automation Bundle definition for etl_citibike.
+# See https://docs.databricks.com/dev-tools/bundles/index.html for documentation.
+bundle:
+  name: etl_citibike
+  uuid: 4f0de38f-a111-41a9-aac7-bf59bcf11a68
+
+include:
+  - resources/*.yml
+
+artifacts:
+  python_artifact:
+    type: whl
+    build: uv build --wheel
+
+# Variable declarations. These variables are assigned in the dev/prod targets below.
+variables:
+  catalog:
+    description: The catalog to use
+  schema:
+    description: The default schema to use
+  bronze_schema:
+    description: The schema used by the bronze layer
+  silver_schema:
+    description: The schema used by the silver layer
+  gold_schema:
+    description: The schema used by the gold layer
+
+targets:
+  dev:
+    # The default target uses 'mode: development' to create a development copy.
+    # - Deployed resources get prefixed with '[dev my_user_name]'
+    # - Any job schedules and triggers are paused by default.
+    # See also https://docs.databricks.com/dev-tools/bundles/deployment-modes.html.
+    mode: development
+    default: true
+    workspace:
+      host: https://adb-7405617047419450.10.azuredatabricks.net
+    variables:
+      catalog: clear
+      schema: ${workspace.current_user.short_name}
+      bronze_schema: ${workspace.current_user.short_name}_bronze
+      silver_schema: ${workspace.current_user.short_name}_silver
+      gold_schema: ${workspace.current_user.short_name}_gold
+  prod:
+    mode: production
+    workspace:
+      host: https://adb-7405617047419450.10.azuredatabricks.net
+      # We explicitly deploy to /Workspace/Users/sharmakrishnan480@gmail.com to make sure we only have a single copy.
+      root_path: /Workspace/Users/sharmakrishnan480@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    variables:
+      catalog: clear
+      schema: prod
+      bronze_schema: prod_bronze
+      silver_schema: prod_silver
+      gold_schema: prod_gold
+    permissions:
+      - user_name: sharmakrishnan480@gmail.com
+        level: CAN_MANAGE
